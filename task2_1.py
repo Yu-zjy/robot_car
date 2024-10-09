@@ -130,7 +130,7 @@ class navigation_demo:
             if state == GoalStatus.REJECTED:  
                 rospy.logwarn("Goal Rejected. Trying to republish.")  
                 self.move_base.send_goal(goal)  # 重发目标  
-                start_time = rospy.Time.now()  # 重置开始时间  
+                #start_time = rospy.Time.now()  # 重置开始时间  
 
             elif state == GoalStatus.SUCCEEDED:  
                 rospy.loginfo("Reached goal succeeded!")  
