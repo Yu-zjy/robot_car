@@ -79,8 +79,8 @@ class navigation_demo:
         orientation = msg.pose.pose.orientation
         rospy.loginfo("Current Position: x = %.2f, y = %.2f, z = %.2f", position.x, position.y, position.z)
         rospy.loginfo("Current Orientation: x = %.2f, y = %.2f, z = %.2f, w = %.2f", orientation.x, orientation.y, orientation.z, orientation.w)
-        if position.x!=0.2 and position.y!=-0.65:
-            self.goto([0.2,-0.65,-180])
+        #if position.x!=0.2 and position.y!=-0.65:
+           #self.goto([0.2,-0.65,-180])
 
     def sway(self):
         while not rospy.is_shutdown() and not self.qr_detected:
