@@ -85,7 +85,7 @@ class navigation_demo:
            #self.goto([0.2,-0.65,-180])
 	
     def odom_callback(msg):
-    rospy.loginfo("Current position: position.x=%f, position.y=%f, angular.z=%f", msg.pose.pose.position.x, msg.pose.pose.position.y, msg.twist.twist.angular.z)
+        rospy.loginfo("Current position: position.x=%f, position.y=%f, angular.z=%f", msg.pose.pose.position.x, msg.pose.pose.position.y, msg.twist.twist.angular.z)
 
     def sway(self):
         while not rospy.is_shutdown() and not self.qr_detected:
