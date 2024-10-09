@@ -18,13 +18,17 @@ from ar_track_alvar_msgs.msg import AlvarMarker
 id=0  
 flog=0
 
-
+#z:音乐路径中不应该引号内再包含引号
+"""
 music1_path="/home/abot/abot_music/'music1.mp3'"
 music2_path="/home/abot/abot_music/'music2.mp3'"
 music3_path="/home/abot/abot_music/'music3.mp3'"
 music4_path="/home/abot/abot_music/'music4.mp3'"
-
-
+"""
+music1_path = "/home/abot/abot_music/music1.mp3"
+music2_path = "/home/abot/abot_music/music2.mp3"
+music3_path = "/home/abot/abot_music/music3.mp3"
+music4_path = "/home/abot/abot_music/music4.mp3"
 
 class navigation_demo:
     def __init__(self):
@@ -115,6 +119,32 @@ class navigation_demo:
         goal.target_pose.pose.orientation.w = q[3]
 
         self.move_base.send_goal(goal, self._done_cb, self._active_cb, self._feedback_cb)
+	#z:修改一下逻辑，检查目标发送是否成功并沿用超时逻辑
+	# 记录开始时间  
+        start_time = rospy.Time.now()  
+
+        while not rospy.is_shutdown():  
+            # 检查目标状态  
+            state = self.move_base.get_state()  
+
+            if state == GoalStatus.REJECTED:  
+                rospy.logwarn("Goal Rejected. Trying to republish.")  
+                self.move_base.send_goal(goal)  # 重发目标  
+                start_time = rospy.Time.now()  # 重置开始时间  
+
+            elif state == GoalStatus.SUCCEEDED:  
+                rospy.loginfo("Reached goal succeeded!")  
+                break  
+
+            # 检查是否超过60秒  
+            if (rospy.Time.now() - start_time).to_sec() > 60:  
+                self.move_base.cancel_goal()  
+                rospy.loginfo("Timed out achieving goal")  
+                break  
+
+            # 可选：添加小睡眠以防止紧密循环  
+            rospy.sleep(1) 
+	    """
         result = self.move_base.wait_for_result(rospy.Duration(60))
         if not result:
             self.move_base.cancel_goal()
@@ -124,7 +154,7 @@ class navigation_demo:
             if state == GoalStatus.SUCCEEDED:
                 rospy.loginfo("reach goal %s succeeded!"%p)
         return True
-
+	    """
     def cancel(self):
         self.move_base.cancel_all_goals()
         return True
