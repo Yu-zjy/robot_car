@@ -5,6 +5,7 @@ import actionlib
 import time
 import os
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 from actionlib_msgs.msg import *
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from nav_msgs.msg import Path
@@ -38,6 +39,7 @@ class navigation_demo:
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self.move_base.wait_for_server(rospy.Duration(60))
         self.amcl_pose_callback=rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, self.amcl_pose_callback)
+	self.odom_callback=rospy.Subscriber('/odom', Odometry, self.odom_callback)
         #self.odom_sub = rospy.Subscriber('/odom', Odometry, self.odom_callback)  
         #self.current_position = rospy.Subscriber('/amcl', PoseWithCovarianceStamped, self.amcl_pose_callback)  
         self.odom_data = None
@@ -81,6 +83,9 @@ class navigation_demo:
         rospy.loginfo("Current Orientation: x = %.2f, y = %.2f, z = %.2f, w = %.2f", orientation.x, orientation.y, orientation.z, orientation.w)
         #if position.x!=0.2 and position.y!=-0.65:
            #self.goto([0.2,-0.65,-180])
+	
+    def odom_callback(msg):
+    rospy.loginfo("Current position: position.x=%f, position.y=%f, angular.z=%f", msg.pose.pose.position.x, msg.pose.pose.position.y, msg.twist.twist.angular.z)
 
     def sway(self):
         while not rospy.is_shutdown() and not self.qr_detected:
