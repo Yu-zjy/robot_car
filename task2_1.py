@@ -167,26 +167,26 @@ class navigation_demo:
             os.system('mplayer %s' % music1_path)
             print('music1')
     	elif id==2:
-              os.system('mplayer %s' % music2_path)
-              print('music2')
+            os.system('mplayer %s' % music2_path)
+            print('music2')
     	elif id==3:
-              os.system('mplayer %s' % music3_path)
-              print('music3')
+            os.system('mplayer %s' % music3_path)
+            print('music3')
     	elif id==4:
-              os.system('mplayer %s' % music4_path)
-              print('music4')
+            os.system('mplayer %s' % music4_path)
+            print('music4')
     	elif id==5:
-              os.system('mplayer %s' % music1_path)
-              print('music5')
+            os.system('mplayer %s' % music1_path)
+            print('music5')
     	elif id==6:
-              os.system('mplayer %s' % music2_path)
-              print('music6')
+            os.system('mplayer %s' % music2_path)
+            print('music6')
     	elif id==7:
-              os.system('mplayer %s' % music3_path)
-              print('music7')
+            os.system('mplayer %s' % music3_path)
+            print('music7')
     	elif id==8:
-              os.system('mplayer %s' % music4_path)
-              print('music8')
+            os.system('mplayer %s' % music4_path)
+            print('music8')
 
 
 
