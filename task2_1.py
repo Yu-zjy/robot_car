@@ -40,8 +40,6 @@ class navigation_demo:
         self.move_base.wait_for_server(rospy.Duration(60))
         self.amcl_pose_callback=rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, self.amcl_pose_callback)
 	self.odom_callback=rospy.Subscriber('/odom', Odometry, self.odom_callback)
-        #self.odom_sub = rospy.Subscriber('/odom', Odometry, self.odom_callback)  
-        #self.current_position = rospy.Subscriber('/amcl', PoseWithCovarianceStamped, self.amcl_pose_callback)  
         self.odom_data = None
         self.current_position_data = None
         #self.id=0
@@ -84,7 +82,7 @@ class navigation_demo:
         #if position.x!=0.2 and position.y!=-0.65:
            #self.goto([0.2,-0.65,-180])
 	
-    def odom_callback(msg):
+    def odom_callback(self,msg):
         rospy.loginfo("Current position: position.x=%f, position.y=%f, angular.z=%f", msg.pose.pose.position.x, msg.pose.pose.position.y, msg.twist.twist.angular.z)
 
     def sway(self):
