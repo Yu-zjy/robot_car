@@ -85,24 +85,24 @@ class navigation_demo:
         self.goto(p)
         rospy.sleep(2)
         if self.goal_reached and id==1:
-            self.goto[target[0]]
+            self.goto[targets[0]]
             rospy.sleep(2)
-            self.goto[target[1]]
+            self.goto[targets[1]]
             rospy.sleep(2)
         if self.goal_reached and id==6:
-            self.goto[target[2]]
+            self.goto[targets[2]]
             rospy.sleep(2)
-            self.goto[target[3]]
+            self.goto[targets[3]]
             rospy.sleep(2)
         if self.goal_reached and id==5:
-            self.goto[target[4]]
+            self.goto[targets[4]]
             rospy.sleep(2)
-            self.goto[target[5]]
+            self.goto[targets[5]]
             rospy.sleep(2)
         if self.goal_reached and id==4:
-            self.goto[target[6]]
+            self.goto[targets[6]]
             rospy.sleep(2)
-            self.goto[target[7]]
+            self.goto[targets[7]]
             rospy.sleep(2)
 
         self.goal_reached = False
