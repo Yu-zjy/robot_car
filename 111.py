@@ -91,7 +91,7 @@ class navigation_demo:
         msg = feedback
         #rospy.loginfo("[Navi] navigation feedback\r\n%s"%feedback)
 
-    def voice(self,id):
+    def voice(self):
     	if id==1:
             os.system('mplayer %s' % music1_path)
             print('music1')
@@ -119,7 +119,7 @@ class navigation_demo:
 
     def process_goal(self, p, targets):
         self.goto(p)
-        self.voice(id)
+        self.voice()
         rospy.sleep(2)
         if self.goal_reached and id==1:
             self.goto(targets[0])
