@@ -15,13 +15,6 @@ from ar_track_alvar_msgs.msg import AlvarMarker
 
 global id = 0
 
-#z:音乐路径中不应该引号内再包含引号
-"""
-music1_path="/home/abot/abot_music/'music1.mp3'"
-music2_path="/home/abot/abot_music/'music2.mp3'"
-music3_path="/home/abot/abot_music/'music3.mp3'"
-music4_path="/home/abot/abot_music/'music4.mp3'"
-"""
 music1_path = "/home/abot/abot_music/music1.mp3"
 music2_path = "/home/abot/abot_music/music2.mp3"
 music3_path = "/home/abot/abot_music/music3.mp3"
@@ -167,6 +160,3 @@ if __name__ == "__main__":
     while not rospy.is_shutdown():
         rospy.sleep(1)
         
-'''if self.goal_reached and not self.qr_detected:
-            self.sway()
-            self.qr_detected = False'''
