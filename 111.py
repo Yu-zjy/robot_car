@@ -15,6 +15,19 @@ from ar_track_alvar_msgs.msg import AlvarMarker
 
 global id = 0
 
+#z:音乐路径中不应该引号内再包含引号
+"""
+music1_path="/home/abot/abot_music/'music1.mp3'"
+music2_path="/home/abot/abot_music/'music2.mp3'"
+music3_path="/home/abot/abot_music/'music3.mp3'"
+music4_path="/home/abot/abot_music/'music4.mp3'"
+"""
+music1_path = "/home/abot/abot_music/music1.mp3"
+music2_path = "/home/abot/abot_music/music2.mp3"
+music3_path = "/home/abot/abot_music/music3.mp3"
+music4_path = "/home/abot/abot_music/music4.mp3"
+
+
 class navigation_demo:
     def __init__(self):
         self.set_pose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=5)
