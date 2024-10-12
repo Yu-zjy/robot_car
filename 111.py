@@ -30,9 +30,9 @@ class navigation_demo:
 
     def ar_cb(self, data):
         for ar_marker in data.markers:
-            if ar_marker.id != 0 and ar_marker.id != 255 and self.goal_reached ==True:
-                self.qr_detected = True
-                print(ar_marker.id)
+            if ar_marker.id != 0 and ar_marker.id != 255：
+                id=ar_marker.id
+                print(id)
 
     def sway(self):
         while not rospy.is_shutdown() and not self.qr_detected:
@@ -81,15 +81,32 @@ class navigation_demo:
         msg = feedback
         #rospy.loginfo("[Navi] navigation feedback\r\n%s"%feedback)
 
-    def process_goal(self, p):
+    def process_goal(self, p, targets):
         self.goto(p)
         rospy.sleep(2)
-
-        if self.goal_reached and not self.qr_detected:
-            self.sway()
+        if self.goal_reached = True and id=1:
+            self.goto[target[0]]
+            rospy.sleep(2)
+            self.goto[target[1]]
+            rospy.sleep(2)
+        if self.goal_reached = True and id=6:
+            self.goto[target[2]]
+            rospy.sleep(2)
+            self.goto[target[3]]
+            rospy.sleep(2)
+        if self.goal_reached = True and id=5:
+            self.goto[target[4]]
+            rospy.sleep(2)
+            self.goto[target[5]]
+            rospy.sleep(2)
+        if self.goal_reached = True and id=4:
+            self.goto[target[6]]
+            rospy.sleep(2)
+            self.goto[target[7]]
+            rospy.sleep(2)
 
         self.goal_reached = False
-        self.qr_detected = False
+
 
 if __name__ == "__main__":
     rospy.init_node('navigation_demo', anonymous=True)
@@ -100,13 +117,19 @@ if __name__ == "__main__":
 
     goals = [[float(x), float(y), float(yaw)] for (x, y, yaw) in zip(goalListX.split(","), goalListY.split(","), goalListYaw.split(","))]
     print('Please 1 to continue: ')
+    targets=[[0.20,-1.02],[1.00,-0.17],[2.20,-0.17],[3.00,-1.02],[3.00,-2.22],[2.20,-3.07],[1.00,-3.07],[0.20,-2.22]]
+    
     input = raw_input()
     print(goals)
 
     navi = navigation_demo()
     if input == '1':
         for goal in goals:
-            navi.process_goal(goal)
+            navi.process_goal(goal,targets)
 
     while not rospy.is_shutdown():
         rospy.sleep(1)
+        
+'''if self.goal_reached and not self.qr_detected:
+            self.sway()
+            self.qr_detected = False'''
