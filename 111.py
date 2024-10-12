@@ -13,8 +13,7 @@ from std_msgs.msg import String
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from ar_track_alvar_msgs.msg import AlvarMarker
 
-id = 0
-flog = 0
+global id = 0
 
 class navigation_demo:
     def __init__(self):
@@ -71,8 +70,6 @@ class navigation_demo:
 
     def _done_cb(self, status, result):
         rospy.loginfo("navigation done! status:%d result:%s" % (status, result))
-        arrive_str = "arrived to target point"
-        self.arrive_pub.publish(arrive_str)
 
     def _active_cb(self):
         rospy.loginfo("[Navi] navigation has be actived")
@@ -81,8 +78,35 @@ class navigation_demo:
         msg = feedback
         #rospy.loginfo("[Navi] navigation feedback\r\n%s"%feedback)
 
+    def voice(id):
+    	if id==1:
+            os.system('mplayer %s' % music1_path)
+            print('music1')
+    	elif id==2:
+            os.system('mplayer %s' % music2_path)
+            print('music2')
+    	elif id==3:
+            os.system('mplayer %s' % music3_path)
+            print('music3')
+    	elif id==4:
+            os.system('mplayer %s' % music4_path)
+            print('music4')
+    	elif id==5:
+            os.system('mplayer %s' % music1_path)
+            print('music5')
+    	elif id==6:
+            os.system('mplayer %s' % music2_path)
+            print('music6')
+    	elif id==7:
+            os.system('mplayer %s' % music3_path)
+            print('music7')
+    	elif id==8:
+            os.system('mplayer %s' % music4_path)
+            print('music8')
+
     def process_goal(self, p, targets):
         self.goto(p)
+        self.voice(id)
         rospy.sleep(2)
         if self.goal_reached and id==1:
             self.goto[targets[0]]
