@@ -33,8 +33,7 @@
     <param name="update_min_a" value="0.2"/>
     <param name="odom_frame_id" value="odom"/>
     <param name="resample_interval" value="1"/>
-    <param name="transform_tolerance" value="1.0"/>
-    <param name="transform_tolerance" value="0.5"/> <!-- 设置transform_tolerance为0.5秒 -->
+    <param name="transform_tolerance" value="0.2"/> <!-- 设置transform_tolerance为0.5秒 -->
     <param name="recovery_alpha_slow" value="0.0"/>
     <param name="recovery_alpha_fast" value="0.0"/>
     <!-- 设置set_initial_pose为true，并指定初始位姿参数 -->
