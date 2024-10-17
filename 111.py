@@ -111,30 +111,30 @@ class navigation_demo:
 
     def process_goal(self, p, targets):
         self.goto(p)
-        rospy.sleep(2)
+        rospy.sleep(1)
         if self.goal_reached and id==1:
             self.goto(targets[0])
-            rospy.sleep(2)
+            rospy.sleep(1)
             self.goto(targets[1])
-            rospy.sleep(2)
+            rospy.sleep(1)
             return True
-        if self.goal_reached and id==6:
+        if self.goal_reached and id==4:
             self.goto(targets[2])
-            rospy.sleep(2)
+            rospy.sleep(1)
             self.goto(targets[3])
-            rospy.sleep(2)
+            rospy.sleep(1)
             return True
         if self.goal_reached and id==5:
             self.goto(targets[4])
-            rospy.sleep(2)
+            rospy.sleep(1)
             self.goto(targets[5])
-            rospy.sleep(2)
+            rospy.sleep(1)
             return True
-        if self.goal_reached and id==4:
+        if self.goal_reached and id==6:
             self.goto(targets[6])
-            rospy.sleep(2)
+            rospy.sleep(1)
             self.goto(targets[7])
-            rospy.sleep(2)
+            rospy.sleep(1)
             return True
 
         self.goal_reached = False
