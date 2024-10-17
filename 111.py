@@ -13,8 +13,6 @@ from std_msgs.msg import String
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from ar_track_alvar_msgs.msg import AlvarMarker
 
-global id = 0
-
 music1_path = "/home/abot/abot_music/music1.mp3"
 music2_path = "/home/abot/abot_music/music2.mp3"
 music3_path = "/home/abot/abot_music/music3.mp3"
@@ -34,8 +32,9 @@ class navigation_demo:
         self.goal_reached = False  
 
     def ar_cb(self, data):
+        global id
         for ar_marker in data.markers:
-            if ar_marker.id != 0 and ar_marker.id != 255：
+            if ar_marker.id != 0 and ar_marker.id != 255:
                 id=ar_marker.id
                 print(id)
 
@@ -112,28 +111,31 @@ class navigation_demo:
 
     def process_goal(self, p, targets):
         self.goto(p)
-        self.voice()
         rospy.sleep(2)
         if self.goal_reached and id==1:
             self.goto(targets[0])
             rospy.sleep(2)
             self.goto(targets[1])
             rospy.sleep(2)
+            return True
         if self.goal_reached and id==6:
             self.goto(targets[2])
             rospy.sleep(2)
             self.goto(targets[3])
             rospy.sleep(2)
+            return True
         if self.goal_reached and id==5:
             self.goto(targets[4])
             rospy.sleep(2)
             self.goto(targets[5])
             rospy.sleep(2)
+            return True
         if self.goal_reached and id==4:
             self.goto(targets[6])
             rospy.sleep(2)
             self.goto(targets[7])
             rospy.sleep(2)
+            return True
 
         self.goal_reached = False
 
@@ -147,7 +149,7 @@ if __name__ == "__main__":
 
     goals = [[float(x), float(y), float(yaw)] for (x, y, yaw) in zip(goalListX.split(","), goalListY.split(","), goalListYaw.split(","))]
     print('Please 1 to continue: ')
-    targets=[[0.20,-1.02],[1.00,-0.17],[2.20,-0.17],[3.00,-1.02],[3.00,-2.22],[2.20,-3.07],[1.00,-3.07],[0.20,-2.22]]
+    targets=[[0.20,-1.02,-180],[1.00,-0.17,-180],[2.20,-0.17,0.0],[3.00,-1.02,0.0],[3.00,-2.22,0.0],[2.20,-3.07,0.0],[1.00,-3.07,-180.0],[0.20,-2.22,-180.0]]
     
     input = raw_input()
     print(goals)
@@ -156,7 +158,7 @@ if __name__ == "__main__":
     if input == '1':
         for goal in goals:
             navi.process_goal(goal,targets)
-
+        navi.goto([0.2,-3.10,-180.0])
     while not rospy.is_shutdown():
         rospy.sleep(1)
         
