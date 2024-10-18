@@ -39,13 +39,16 @@ class navigation_demo:
                 print(id)
 
     def sway(self):
-        while not rospy.is_shutdown() and not self.qr_detected:
-            self.twist.angular.z = -1.0
+        if self.goal_reached:
+            self.twist.linear.x= 0.1
+            self.twist.linear.y= 0.1
             self.cmd_vel_pub.publish(self.twist)
-            rospy.sleep(0.5)
+            rospy.sleep(1)
         
-        self.twist.angular.z = 0.0
+        self.twist.linear.x= 0.0
+        self.twist.linear.y= 0.0
         self.cmd_vel_pub.publish(self.twist)
+        self.goal_reached=False
 
     def goto(self, p):
         rospy.loginfo("[Navi] goto %s" % p)
@@ -111,30 +114,34 @@ class navigation_demo:
 
     def process_goal(self, p, targets):
         self.goto(p)
-        rospy.sleep(1)
         if self.goal_reached and id==1:
+            str1='reached target'
+            self.arrive_pub.publish(str1)
+            rospy.sleep(2)
             self.goto(targets[0])
-            rospy.sleep(1)
+            str2='goal reached'
+            self.arrive_pub.publish(str2)
+            rospy.sleep(2)
             self.goto(targets[1])
-            rospy.sleep(1)
+            rospy.sleep(2)
             return True
         if self.goal_reached and id==4:
             self.goto(targets[2])
-            rospy.sleep(1)
+            rospy.sleep(2)
             self.goto(targets[3])
-            rospy.sleep(1)
+            rospy.sleep(2)
             return True
         if self.goal_reached and id==5:
             self.goto(targets[4])
-            rospy.sleep(1)
+            rospy.sleep(2)
             self.goto(targets[5])
-            rospy.sleep(1)
+            rospy.sleep(2)
             return True
         if self.goal_reached and id==6:
             self.goto(targets[6])
-            rospy.sleep(1)
+            rospy.sleep(2)
             self.goto(targets[7])
-            rospy.sleep(1)
+            rospy.sleep(2)
             return True
 
         self.goal_reached = False
@@ -159,6 +166,8 @@ if __name__ == "__main__":
         for goal in goals:
             navi.process_goal(goal,targets)
         navi.goto([0.2,-3.10,-180.0])
+        rospy.sleep(2)
+        navi.sway()
     while not rospy.is_shutdown():
         rospy.sleep(1)
         
