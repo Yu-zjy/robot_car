@@ -34,22 +34,33 @@ class navigation_demo:
 
     def ar_cb(self, data):
 	global id
+	self.qr_detected = False
         for ar_marker in data.markers:
             if ar_marker.id != 0 and ar_marker.id != 255:
+		self.qr_detected = True
                 id=ar_marker.id
                 print(id)
 
     def sway(self):
-        if self.goal_reached:
-            self.twist.linear.x= 1.2
-            self.twist.linear.y= 0.9
-            self.cmd_vel_pub.publish(self.twist)
-            rospy.sleep(3)
-        
-        self.twist.linear.x= 0.0
-        self.twist.linear.y= 0.0
+        while not rospy.is_shutdown() and not self.qr_detected:
+		self.twist.linear.x=0.0
+                self.twist.linear.y=0.0
+		self.twist.angular.z=0.5
+                self.cmd_vel_pub.publish(self.twist)
+		rospy.sleep(0.5)
+        self.twist.angular.z=0.0
         self.cmd_vel_pub.publish(self.twist)
-        self.goal_reached=False
+	    
+    def revive(self,x,y,z,time):
+        self.twist.linear.x=x
+        self.twist.linear.y=y
+	self.twist.angular.z=z
+        self.cmd_vel_pub.publish(self.twist)
+	rospy.sleep(time)
+	self.twist.linear.x=0.0
+        self.twist.linear.y=0.0
+	self.twist.angular.z=0.0
+	self.cmd_vel_pub.publish(self.twist)
 
     def goto(self, p):
         rospy.loginfo("[Navi] goto %s" % p)
@@ -115,10 +126,14 @@ class navigation_demo:
 
     def process_goal(self, p, targets):
         self.goto(p)
-        if self.goal_reached==True and id==1:
+	if self.goal_reached==True:
 	    str1 = 'Target is gaol1'
 	    self.arrive_pub.publish(str1)
             rospy.sleep(2)
+	elif:
+	    return True
+	self.sway()
+        if id==1:
             self.goto(targets[0])
 	    str2 = 'Goal0 reached'
 	    self.arrive_pub.publish(str2)
@@ -126,21 +141,21 @@ class navigation_demo:
             self.goto(targets[1])
             rospy.sleep(2)
             return True
-        if self.goal_reached==True and id==4:
+        if id==4:
             self.goto(targets[2])
 	    print('targets[2]')
             rospy.sleep(2)
             self.goto(targets[3])
             rospy.sleep(2)
             return True
-        if self.goal_reached==True and id==5:
+        if id==5:
             self.goto(targets[4])
 	    print('targets[4]')
             rospy.sleep(2)
             self.goto(targets[5])
             rospy.sleep(2)
             return True
-        if self.goal_reached==True and id==6:
+        if id==6:
             self.goto(targets[6])
 	    print('targets[6]')
             rospy.sleep(2)
@@ -165,16 +180,12 @@ if __name__ == "__main__":
 
     navi = navigation_demo()
     if input == '1':
-        navi.goto([0.2,-3.2,-180.0])
-        rospy.sleep(2)
-        navi.sway()
-	    navi.twist.linear.x= 1.0
-        navi.twist.linear.y= 0.9
-        navi.cmd_vel_pub.publish(navi.twist)
-        rospy.sleep(3)
-        navi.twist.linear.x= 0.0
-        navi.twist.linear.y= 0.0
-        navi.cmd_vel_pub.publish(navi.twist)
+	navi.goto(target[7])
+	navi.revive(0,0,0.78,1)
+        rospy.sleep(1)
+	navi.revive(1.5,0,0,2)
+	rospy.sleep(1)
+	navi.revive(0,0,0.78,1)
 
     while not rospy.is_shutdown():
         rospy.sleep(1)
@@ -191,4 +202,16 @@ navi.goto([0.4,-3.20,0])
     if input == '3':
 	navi.goto([0.3,-0.15,0])
 	navi.goto([0.05,-0.05,0])
+'''
+'''
+	navi.goto([0.2,-3.2,-180.0])
+        rospy.sleep(2)
+        navi.sway()
+	    navi.twist.linear.x= 1.0
+        navi.twist.linear.y= 0.9
+        navi.cmd_vel_pub.publish(navi.twist)
+        rospy.sleep(3)
+        navi.twist.linear.x= 0.0
+        navi.twist.linear.y= 0.0
+        navi.cmd_vel_pub.publish(navi.twist)
 '''
