@@ -9,11 +9,12 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from tf_conversions import transformations
 from math import pi
 from std_msgs.msg import String
-
+import os
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from ar_track_alvar_msgs.msg import AlvarMarker
 
-music1_path = "/home/abot/abot_music/music1.mp3"
+
+music1_path = "/home/abot/music/goal1.wav"
 music2_path = "/home/abot/abot_music/music2.mp3"
 music3_path = "/home/abot/abot_music/music3.mp3"
 music4_path = "/home/abot/abot_music/music4.mp3"
@@ -32,7 +33,7 @@ class navigation_demo:
         self.goal_reached = False  
 
     def ar_cb(self, data):
-        global id
+	global id
         for ar_marker in data.markers:
             if ar_marker.id != 0 and ar_marker.id != 255:
                 id=ar_marker.id
@@ -40,10 +41,10 @@ class navigation_demo:
 
     def sway(self):
         if self.goal_reached:
-            self.twist.linear.x= 0.1
-            self.twist.linear.y= 0.1
+            self.twist.linear.x= 1.2
+            self.twist.linear.y= 0.9
             self.cmd_vel_pub.publish(self.twist)
-            rospy.sleep(1)
+            rospy.sleep(3)
         
         self.twist.linear.x= 0.0
         self.twist.linear.y= 0.0
@@ -114,38 +115,39 @@ class navigation_demo:
 
     def process_goal(self, p, targets):
         self.goto(p)
-        if self.goal_reached and id==1:
-            str1='reached target'
-            self.arrive_pub.publish(str1)
+        if self.goal_reached==True and id==1:
+	    str1 = 'Target is gaol1'
+	    self.arrive_pub.publish(str1)
             rospy.sleep(2)
             self.goto(targets[0])
-            str2='goal reached'
-            self.arrive_pub.publish(str2)
+	    str2 = 'Goal0 reached'
+	    self.arrive_pub.publish(str2)
             rospy.sleep(2)
             self.goto(targets[1])
             rospy.sleep(2)
             return True
-        if self.goal_reached and id==4:
+        if self.goal_reached==True and id==4:
             self.goto(targets[2])
+	    print('targets[2]')
             rospy.sleep(2)
             self.goto(targets[3])
             rospy.sleep(2)
             return True
-        if self.goal_reached and id==5:
+        if self.goal_reached==True and id==5:
             self.goto(targets[4])
+	    print('targets[4]')
             rospy.sleep(2)
             self.goto(targets[5])
             rospy.sleep(2)
             return True
-        if self.goal_reached and id==6:
+        if self.goal_reached==True and id==6:
             self.goto(targets[6])
+	    print('targets[6]')
             rospy.sleep(2)
             self.goto(targets[7])
             rospy.sleep(2)
             return True
-
         self.goal_reached = False
-
 
 if __name__ == "__main__":
     rospy.init_node('navigation_demo', anonymous=True)
@@ -156,18 +158,37 @@ if __name__ == "__main__":
 
     goals = [[float(x), float(y), float(yaw)] for (x, y, yaw) in zip(goalListX.split(","), goalListY.split(","), goalListYaw.split(","))]
     print('Please 1 to continue: ')
-    targets=[[0.20,-1.02,-180],[1.00,-0.17,-180],[2.20,-0.17,0.0],[3.00,-1.02,0.0],[3.00,-2.22,0.0],[2.20,-3.07,0.0],[1.00,-3.07,-180.0],[0.20,-2.22,-180.0]]
+    targets=[[0.20,-1.02,-180],[1.00,-0.17,-180],[2.20,-0.17,0],[3.00,-1.02,0],[3.00,-2.22,0],[2.20,-3.07,0],[1.00,-3.07,-180],[0.20,-2.22,-180]]
     
     input = raw_input()
     print(goals)
 
     navi = navigation_demo()
     if input == '1':
-        for goal in goals:
-            navi.process_goal(goal,targets)
-        navi.goto([0.2,-3.10,-180.0])
+        navi.goto([0.2,-3.2,-180.0])
         rospy.sleep(2)
         navi.sway()
+	    navi.twist.linear.x= 1.0
+        navi.twist.linear.y= 0.9
+        navi.cmd_vel_pub.publish(navi.twist)
+        rospy.sleep(3)
+        navi.twist.linear.x= 0.0
+        navi.twist.linear.y= 0.0
+        navi.cmd_vel_pub.publish(navi.twist)
+
     while not rospy.is_shutdown():
         rospy.sleep(1)
         
+'''
+
+for goal in goals:
+            navi.process_goal(goal,targets)
+navi.goto([0.4,-3.20,0])
+	
+    if input == '2':
+	navi.goto([0.3,-0.15,0])
+	navi.goto([0.1,-0.1,0])
+    if input == '3':
+	navi.goto([0.3,-0.15,0])
+	navi.goto([0.05,-0.05,0])
+'''
