@@ -1,14 +1,16 @@
-<launch>
-    <!-- 定义图像话题 -->
-    <arg name="image_topic" default="/usb_cam/image_raw" />
-    <arg name="object_name" default="red_cup" />
-    <arg name="output_db" default="$(find your_package)/data/object_db.yaml" />
 <!--image_topic 是你从相机获取的图像话题。-->
 <!--object_name 是你要创建的对象的名称。-->
 <!--output_db 是特征文件的保存路径，你可以根据需要修改这个路径。-->
-    <node pkg="find_object_2d" type="create_object_db.py" name="create_object_db" output="screen">
+<launch>
+    <arg name="image_topic" default="/usb_cam/image_raw"/>
+    <arg name="object_name" default="red_cup"/>
+    <arg name="output_db" default="/home/abot/abot_ws/src/abot_find/object/object_db.yaml"/>
+    
+    <!-- Nodes -->
+    <node name="create_object_db" pkg="find_object_2d" type="create_object_db.py" output="screen">
         <param name="image_topic" value="$(arg image_topic)" />
         <param name="object_name" value="$(arg object_name)" />
         <param name="output_db" value="$(arg output_db)" />
     </node>
 </launch>
+
