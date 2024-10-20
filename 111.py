@@ -9,6 +9,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from tf_conversions import transformations
 from math import pi
 from std_msgs.msg import String
+from find_object_2d.msg import ObjectDetection
 import os
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from ar_track_alvar_msgs.msg import AlvarMarker
@@ -25,6 +26,7 @@ class navigation_demo:
         self.set_pose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=5)
         self.arrive_pub = rospy.Publisher('/voiceWords', String, queue_size=10)
         self.ar_sub = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.ar_cb)
+	self.objects_sub=rospy.Subscriber("/find_object_2d/detection", ObjectDetection, self.objects_cb)
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self.move_base.wait_for_server(rospy.Duration(60))
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
@@ -40,27 +42,20 @@ class navigation_demo:
 		self.qr_detected = True
                 id=ar_marker.id
                 print(id)
-
+		    
+    def objects_cb(self, data):
+	if data.detections:
+	    for detection in data.detections:
+		    rospy.loginfo(f"Detected object: {detection.id}")
+		    
     def sway(self):
         while not rospy.is_shutdown() and not self.qr_detected:
-		self.twist.linear.x=0.0
-                self.twist.linear.y=0.0
 		self.twist.angular.z=0.5
                 self.cmd_vel_pub.publish(self.twist)
 		rospy.sleep(0.5)
         self.twist.angular.z=0.0
         self.cmd_vel_pub.publish(self.twist)
 	    
-    def revive(self,x,y,z,time):
-        self.twist.linear.x=x
-        self.twist.linear.y=y
-	self.twist.angular.z=z
-        self.cmd_vel_pub.publish(self.twist)
-	rospy.sleep(time)
-	self.twist.linear.x=0.0
-        self.twist.linear.y=0.0
-	self.twist.angular.z=0.0
-	self.cmd_vel_pub.publish(self.twist)
 
     def goto(self, p):
         rospy.loginfo("[Navi] goto %s" % p)
