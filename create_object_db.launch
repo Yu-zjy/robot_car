@@ -3,7 +3,7 @@
 <!--output_db 是特征文件的保存路径，你可以根据需要修改这个路径。-->
 <launch>
     <arg name="image_topic" default="/usb_cam/image_raw"/>
-    <arg name="object_name" default="object_name_placeholder"/>
+    <arg name="object_name" default="red_cup"/>
     <arg name="objects_path" default="/home/abot/abot_ws/src/abot_find/object/object_db.yaml"/>
 
     <node name="create_object_db" pkg="find_object_2d" type="create_object_db.py" output="screen">
