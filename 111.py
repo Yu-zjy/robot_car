@@ -9,7 +9,9 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from tf_conversions import transformations
 from math import pi
 from std_msgs.msg import String
-from find_object_2d.msg import ObjectDetection
+from std_msgs.msg import Float32MultiArray
+from PyQt5.QtCore import QPointF
+from PyQt5.QtGui import QTransform
 import os
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from ar_track_alvar_msgs.msg import AlvarMarker
@@ -26,7 +28,7 @@ class navigation_demo:
         self.set_pose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=5)
         self.arrive_pub = rospy.Publisher('/voiceWords', String, queue_size=10)
         self.ar_sub = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.ar_cb)
-	self.objects_sub=rospy.Subscriber("/find_object_2d/detection", ObjectDetection, self.objects_cb)
+	self.objects_sub=rospy.Subscriber('/objects', Float32MultiArray,self.objects_cb)
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self.move_base.wait_for_server(rospy.Duration(60))
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
@@ -43,11 +45,36 @@ class navigation_demo:
                 id=ar_marker.id
                 print(id)
 		    
-    def objects_cb(self, data):
-	if data.detections:
-	    for detection in data.detections:
-		    rospy.loginfo(f"Detected object: {detection.id}")
-		    
+    def objects_cb(self, msg):
+	global object_id
+    	rospy.loginfo("---")
+    	data = msg.data
+    	if data:
+            for i in range(0, len(data), 12):
+            	object_id = int(data[i])
+            	object_width = data[i + 1]
+            	object_height = data[i + 2]
+
+            	qt_homography = QTransform(
+                    data[i + 3], data[i + 4], data[i + 5],
+                    data[i + 6], data[i + 7], data[i + 8],
+                    data[i + 9], data[i + 10], data[i + 11]
+            	)
+
+            	qt_top_left = qt_homography.map(QPointF(0, 0))
+            	qt_top_right = qt_homography.map(QPointF(object_width, 0))
+            	qt_bottom_left = qt_homography.map(QPointF(0, object_height))
+            	qt_bottom_right = qt_homography.map(QPointF(object_width, object_height))
+
+            	rospy.loginfo("Object %d detected, Qt corners at (%f,%f) (%f,%f) (%f,%f) (%f,%f)",
+                              object_id,
+                              qt_top_left.x(), qt_top_left.y(),
+                              qt_top_right.x(), qt_top_right.y(),
+                              qt_bottom_left.x(), qt_bottom_left.y(),
+                              qt_bottom_right.x(), qt_bottom_right.y())
+    	else:
+            rospy.loginfo("No objects detected.")
+	    
     def sway(self):
         while not rospy.is_shutdown() and not self.qr_detected:
 		self.twist.angular.z=0.5
