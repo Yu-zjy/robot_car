@@ -66,12 +66,7 @@ class navigation_demo:
             	qt_bottom_left = qt_homography.map(QPointF(0, object_height))
             	qt_bottom_right = qt_homography.map(QPointF(object_width, object_height))
 
-            	rospy.loginfo("Object %d detected, Qt corners at (%f,%f) (%f,%f) (%f,%f) (%f,%f)",
-                              object_id,
-                              qt_top_left.x(), qt_top_left.y(),
-                              qt_top_right.x(), qt_top_right.y(),
-                              qt_bottom_left.x(), qt_bottom_left.y(),
-                              qt_bottom_right.x(), qt_bottom_right.y())
+            	print(object_id)
     	else:
             rospy.loginfo("No objects detected.")
 	    
