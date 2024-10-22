@@ -1,5 +1,15 @@
 #!/usr/bin/env python
-
+'''
+功能：该脚本订阅图像和对象信息，并在图像上绘制检测到的对象。
+转换细节：
+使用 cv2.perspectiveTransform 计算变换后的点。
+使用 cv_bridge 将 ROS 图像消息转换为 OpenCV 格式。
+使用 message_filters 实现同步订阅。
+使用说明：
+确保已安装 ROS 和相关依赖库（如 OpenCV 和 cv_bridge）。
+将此文件保存为 objects_detected.py 并赋予可执行权限：chmod +x objects_detected.py。
+在 ROS 环境中运行此脚本。
+'''
 import rospy
 import message_filters
 from sensor_msgs.msg import Image
