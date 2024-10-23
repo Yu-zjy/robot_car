@@ -33,6 +33,9 @@ global cha
 cha=0
 global num
 num =0
+global save
+save=[0]
+
 class navigation_demo:
     def __init__(self):
         self.set_pose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=5)
@@ -46,16 +49,13 @@ class navigation_demo:
         self.qr_detected = False
 	self.cha_detected = False
         self.goal_reached = False  
-	self.stop_navigation = False
 
     def ar_cb(self, data):
 	global id
         self.qr_detected = False
-	self.stop_navigation = False
         for ar_marker in data.markers:
             if ar_marker.id != 0 and ar_marker.id != 255:
         	self.qr_detected = True
-		self.stop_navigation = True
                 id=ar_marker.id
                 print(id)
 
@@ -79,7 +79,6 @@ class navigation_demo:
             	qt_bottom_left = qt_homography.map(QPointF(0, object_height))
             	qt_bottom_right = qt_homography.map(QPointF(object_width, object_height))
 		self.cha_detected = True
-		self.stop_navigation = True
     		if ((55<=object_id) & (object_id<=60)):
 	    	    print('a_1')
 		    cha=1
@@ -134,7 +133,9 @@ class navigation_demo:
         self.move_base.send_goal(goal, self._done_cb, self._active_cb, self._feedback_cb)
 	    
     	while not self.move_base.wait_for_result(rospy.Duration(0.1)):
-        	if self.stop_navigation:
+        	if (self.cha_detected or self.qr_detected):
+		    if id==save[num] or cha==save[num]:
+			continue
             	    self.move_base.cancel_goal()
             	    rospy.loginfo("Navigation canceled due to detection.")
 		    self.goal_reached = True
@@ -168,29 +169,30 @@ class navigation_demo:
 	if self.cha_detected == False and self.qr_detected == False:
 	    return True
 
-
         if id==2 and num==0:
             self.goto(targets[1])
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
+	    save[num]=id
             return True
         if cha==4 and num==1:
             self.goto(targets[3])
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
+	    save[num]=cha
             return True
         if id==5 and num==2:
             self.goto(targets[5])
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
+	    save[num]=id
             return True
         if id==8 and num==3:
             self.goto(targets[7])
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
-
+	    save[num]=id
         self.goal_reached = False
-	self.stop_navigation = False
 
 if __name__ == "__main__":
     rospy.init_node('navigation_demo', anonymous=True)
