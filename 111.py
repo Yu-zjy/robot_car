@@ -7,6 +7,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from tf_conversions import transformations
+from find_object_2d.msg import ObjectsStamped
 from math import pi
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
@@ -16,13 +17,22 @@ import os
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from ar_track_alvar_msgs.msg import AlvarMarker
 
+music1_path = "/home/abot/mksw/src/detect2.wav"
+music2_path = "/home/abot/mksw/src/arrive2.wav"
+music3_path = "/home/abot/mksw/src/detect4.wav"
+music4_path = "/home/abot/mksw/src/arrive4.wav"
+music5_path = "/home/abot/mksw/src/detect5.wav"
+music6_path = "/home/abot/mksw/src/arrive5.wav"
+music7_path = "/home/abot/mksw/src/detect8.wav"
+music8_path = "/home/abot/mksw/src/arrive8.wav"
 
-music1_path = "/home/abot/music/goal1.wav"
-music2_path = "/home/abot/abot_music/music2.mp3"
-music3_path = "/home/abot/abot_music/music3.mp3"
-music4_path = "/home/abot/abot_music/music4.mp3"
-
-
+path = [[music1_path,music2_path],[music3_path,music4_path],[music5_path,music6_path],[music7_path,music8_path]]
+global object_id
+object_id=0
+global cha
+cha=0
+global num
+num =0
 class navigation_demo:
     def __init__(self):
         self.set_pose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=5)
@@ -34,21 +44,24 @@ class navigation_demo:
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.twist = Twist()
         self.qr_detected = False
+	self.cha_detected = False
         self.goal_reached = False  
+	self.stop_navigation = False
 
     def ar_cb(self, data):
 	global id
-	self.qr_detected = False
+        self.qr_detected = False
+	self.stop_navigation = False
         for ar_marker in data.markers:
             if ar_marker.id != 0 and ar_marker.id != 255:
-		self.qr_detected = True
+        	self.qr_detected = True
+		self.stop_navigation = True
                 id=ar_marker.id
                 print(id)
-		    
+
     def objects_cb(self, msg):
-	global object_id
-    	rospy.loginfo("---")
     	data = msg.data
+	self.cha_detected = False
     	if data:
             for i in range(0, len(data), 12):
             	object_id = int(data[i])
@@ -65,19 +78,45 @@ class navigation_demo:
             	qt_top_right = qt_homography.map(QPointF(object_width, 0))
             	qt_bottom_left = qt_homography.map(QPointF(0, object_height))
             	qt_bottom_right = qt_homography.map(QPointF(object_width, object_height))
+		self.cha_detected = True
+		self.stop_navigation = True
+    		if ((55<=object_id) & (object_id<=60)):
+	    	    print('a_1')
+		    cha=1
+    		if ((61<=object_id) & (object_id<=65)):
+	            print('a_2')
+		    cha=2
+    		if ((66<=object_id) & (object_id<=70)):
+	    	    print('a_3')
+		    cha=3
+    		if ((71<=object_id) & (object_id<=75)):
+	    	    print('a_4')
+		    cha=4
+    		if ((76<=object_id) & (object_id<=81)):
+	    	    print('a_5')
+		    cha=5
+    		if ((82<=object_id) & (object_id<=86)):
+	    	    print('a_6')
+		    cha=6
+    		if ((87<=object_id) & (object_id<=91)):
+	    	    print('a_7')
+		    cha=7
+    		if ((92<=object_id) & (object_id<=96)):
+	    	    print('a_8')
+		    cha=8
+    
 
-            	print(object_id)
-    	else:
-            rospy.loginfo("No objects detected.")
-	    
     def sway(self):
-        while not rospy.is_shutdown() and not self.qr_detected:
-		self.twist.angular.z=0.5
-                self.cmd_vel_pub.publish(self.twist)
-		rospy.sleep(0.5)
-        self.twist.angular.z=0.0
+        if self.goal_reached:
+            self.twist.linear.x= 1.2
+            self.twist.linear.y= 0.9
+            self.cmd_vel_pub.publish(self.twist)
+            rospy.sleep(3)
+        
+        self.twist.linear.x= 0.0
+        self.twist.linear.y= 0.0
         self.cmd_vel_pub.publish(self.twist)
-	    
+        self.goal_reached=False
 
     def goto(self, p):
         rospy.loginfo("[Navi] goto %s" % p)
@@ -93,15 +132,18 @@ class navigation_demo:
         goal.target_pose.pose.orientation.w = q[3]
 
         self.move_base.send_goal(goal, self._done_cb, self._active_cb, self._feedback_cb)
-        result = self.move_base.wait_for_result(rospy.Duration(60))
-        if not result:
-            self.move_base.cancel_goal()
-            rospy.loginfo("Timed out achieving goal")
-        else:
-            state = self.move_base.get_state()
-            if state == GoalStatus.SUCCEEDED:
-                rospy.loginfo("reach goal %s succeeded!" % p)
-                self.goal_reached = True 
+	    
+    	while not self.move_base.wait_for_result(rospy.Duration(0.1)):
+        	if self.stop_navigation:
+            	    self.move_base.cancel_goal()
+            	    rospy.loginfo("Navigation canceled due to detection.")
+		    self.goal_reached = True
+            	    return True 
+
+    	state = self.move_base.get_state()
+    	if state == GoalStatus.SUCCEEDED:
+            rospy.loginfo("reach goal %s succeeded!" % p)
+	    self.goal_reached = True
 
         return True
 
@@ -115,71 +157,40 @@ class navigation_demo:
         msg = feedback
         #rospy.loginfo("[Navi] navigation feedback\r\n%s"%feedback)
 
-    def voice(self):
-    	if id==1:
-            os.system('mplayer %s' % music1_path)
-            print('music1')
-    	elif id==2:
-            os.system('mplayer %s' % music2_path)
-            print('music2')
-    	elif id==3:
-            os.system('mplayer %s' % music3_path)
-            print('music3')
-    	elif id==4:
-            os.system('mplayer %s' % music4_path)
-            print('music4')
-    	elif id==5:
-            os.system('mplayer %s' % music1_path)
-            print('music5')
-    	elif id==6:
-            os.system('mplayer %s' % music2_path)
-            print('music6')
-    	elif id==7:
-            os.system('mplayer %s' % music3_path)
-            print('music7')
-    	elif id==8:
-            os.system('mplayer %s' % music4_path)
-            print('music8')
 
     def process_goal(self, p, targets):
         self.goto(p)
 	if self.goal_reached==True:
-	    str1 = 'Target is gaol1'
-	    self.arrive_pub.publish(str1)
+	    os.system('mplayer %s' % path[num][0])
             rospy.sleep(2)
-	elif:
+	if self.goal_reached==False:
 	    return True
-	self.sway()
-        if id==1:
-            self.goto(targets[0])
-	    str2 = 'Goal0 reached'
-	    self.arrive_pub.publish(str2)
-            rospy.sleep(2)
+	if self.cha_detected == False and self.qr_detected == False:
+	    return True
+
+
+        if id==2 and num==0:
             self.goto(targets[1])
-            rospy.sleep(2)
+            rospy.sleep(1)
+	    os.system('mplayer %s' % path[num][1])
             return True
-        if id==4:
-            self.goto(targets[2])
-	    print('targets[2]')
-            rospy.sleep(2)
+        if cha==4 and num==1:
             self.goto(targets[3])
-            rospy.sleep(2)
+            rospy.sleep(1)
+	    os.system('mplayer %s' % path[num][1])
             return True
-        if id==5:
-            self.goto(targets[4])
-	    print('targets[4]')
-            rospy.sleep(2)
+        if id==5 and num==2:
             self.goto(targets[5])
-            rospy.sleep(2)
+            rospy.sleep(1)
+	    os.system('mplayer %s' % path[num][1])
             return True
-        if id==6:
-            self.goto(targets[6])
-	    print('targets[6]')
-            rospy.sleep(2)
+        if id==8 and num==3:
             self.goto(targets[7])
-            rospy.sleep(2)
-            return True
+            rospy.sleep(1)
+	    os.system('mplayer %s' % path[num][1])
+
         self.goal_reached = False
+	self.stop_navigation = False
 
 if __name__ == "__main__":
     rospy.init_node('navigation_demo', anonymous=True)
@@ -189,29 +200,33 @@ if __name__ == "__main__":
     goalListYaw = rospy.get_param('~goalListYaw', '0, 90.0')
 
     goals = [[float(x), float(y), float(yaw)] for (x, y, yaw) in zip(goalListX.split(","), goalListY.split(","), goalListYaw.split(","))]
+    print(goals)
     print('Please 1 to continue: ')
     targets=[[0.20,-1.02,-180],[1.00,-0.17,-180],[2.20,-0.17,0],[3.00,-1.02,0],[3.00,-2.22,0],[2.20,-3.07,0],[1.00,-3.07,-180],[0.20,-2.22,-180]]
-    
-    input = raw_input()
-    print(goals)
-
     navi = navigation_demo()
+    input = raw_input()
     if input == '1':
-	navi.goto(target[7])
-	navi.revive(0,0,0.78,1)
-        rospy.sleep(1)
-	navi.revive(1.5,0,0,2)
-	rospy.sleep(1)
-	navi.revive(0,0,0.78,1)
+	for goal in goals:
+            navi.process_goal(goal,targets)
+	    num=num+1
 
     while not rospy.is_shutdown():
         rospy.sleep(1)
         
 '''
+	navi.goto([0.4,-3.20,0])
+        navi.goto([0.2,-3.2,-180.0])
+        rospy.sleep(2)
+        navi.sway()
+	navi.twist.linear.x= 1.0
+        navi.twist.linear.y= 0.9
+        navi.cmd_vel_pub.publish(navi.twist)
+        rospy.sleep(3)
+        
+        navi.twist.linear.x= 0.0
+        navi.twist.linear.y= 0.0
+        navi.cmd_vel_pub.publish(navi.twist)
 
-for goal in goals:
-            navi.process_goal(goal,targets)
-navi.goto([0.4,-3.20,0])
 	
     if input == '2':
 	navi.goto([0.3,-0.15,0])
@@ -219,16 +234,4 @@ navi.goto([0.4,-3.20,0])
     if input == '3':
 	navi.goto([0.3,-0.15,0])
 	navi.goto([0.05,-0.05,0])
-'''
-'''
-	navi.goto([0.2,-3.2,-180.0])
-        rospy.sleep(2)
-        navi.sway()
-	    navi.twist.linear.x= 1.0
-        navi.twist.linear.y= 0.9
-        navi.cmd_vel_pub.publish(navi.twist)
-        rospy.sleep(3)
-        navi.twist.linear.x= 0.0
-        navi.twist.linear.y= 0.0
-        navi.cmd_vel_pub.publish(navi.twist)
 '''
