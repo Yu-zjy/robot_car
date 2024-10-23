@@ -8,6 +8,8 @@ from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from tf_conversions import transformations
 from find_object_2d.msg import ObjectsStamped
+from ar_track_alvar_msgs.msg import AlvarMarkers
+from ar_track_alvar_msgs.msg import AlvarMarker
 from math import pi
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
@@ -25,28 +27,31 @@ music7_path = "/home/abot/mksw/src/detect8.wav"
 music8_path = "/home/abot/mksw/src/arrive8.wav"
 
 path = [[music1_path,music2_path],[music3_path,music4_path],[music5_path,music6_path],[music7_path,music8_path]]
-global object_id
-object_id=0
-global id
-global cha
-cha=0
-global num
-num =0
-global save
-save=[25]*15
 
 class navigation_demo:
     def __init__(self):
         self.set_pose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=5)
         self.arrive_pub = rospy.Publisher('/voiceWords', String, queue_size=10)
 	self.objects_sub=rospy.Subscriber('/objects', Float32MultiArray,self.objects_cb)
+	self.ar_sub = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.ar_cb)
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self.move_base.wait_for_server(rospy.Duration(60))
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.twist = Twist()
+	self.id=0
+	self.cha=0
+	self.save=[25]*15
+	self.num=0
 	self.cha_detected = False
         self.goal_reached = False  
-       
+
+    def ar_cb(self, data):
+        self.qr_detected = False
+        for ar_marker in data.markers:
+            if ar_marker.id != 0 and ar_marker.id != 255:
+        	self.qr_detected = True
+                self.id=ar_marker.id
+                print(id)
 
     def objects_cb(self, msg):
     	data = msg.data
@@ -70,40 +75,31 @@ class navigation_demo:
 		self.cha_detected = True
     		if ((55<=object_id) & (object_id<=60)):
 	    	    print('a_1')
-		    cha=1
+		    self.cha=1
     		if ((61<=object_id) & (object_id<=65)):
 	            print('a_2')
-		    cha=2
+		    self.cha=2
     		if ((66<=object_id) & (object_id<=70)):
 	    	    print('a_3')
-		    cha=3
+		    self.cha=3
     		if ((71<=object_id) & (object_id<=75)):
 	    	    print('a_4')
-		    cha=4
+		    self.cha=4
     		if ((76<=object_id) & (object_id<=81)):
 	    	    print('a_5')
-		    cha=5
+		    self.cha=5
     		if ((82<=object_id) & (object_id<=86)):
 	    	    print('a_6')
-		    cha=6
+		    self.cha=6
     		if ((87<=object_id) & (object_id<=91)):
 	    	    print('a_7')
-		    cha=7
+		    self.cha=7
     		if ((92<=object_id) & (object_id<=96)):
 	    	    print('a_8')
-		    cha=8
-		if ((55<=object_id) & (object_id<=60)):
-	    	    print('2')
-		    id=2
-		if ((55<=object_id) & (object_id<=60)):
-	    	    print('5')
-		    id=5
-		if ((55<=object_id) & (object_id<=60)):
-	    	    print('8')
-		    id=8
+		    self.cha=8
     
     def sway(self):
-	while not rospy.is_shutdown() and not self.cha_detected:
+	while not rospy.is_shutdown() and not (self.cha_detected or  self.qr_detected):
 		self.twist.angular.z=0.5
 		self.cmd_vel_pub.publish(self.twist)
 		rospy.sleep(1)
@@ -138,8 +134,8 @@ class navigation_demo:
         self.move_base.send_goal(goal, self._done_cb, self._active_cb, self._feedback_cb)
 	    
     	while not self.move_base.wait_for_result(rospy.Duration(0.1)):
-        	if self.cha_detected:
-		    if (id in save[:num]) or (cha in save[:num]):
+        	if (self.cha_detected or self.cha_detected):
+		    if (self.id in self.save[:num]) or (self.cha in self.save[:num]):
 			continue
             	    self.move_base.cancel_goal()
             	    rospy.loginfo("Navigation canceled due to detection.")
@@ -167,51 +163,51 @@ class navigation_demo:
     def process_goal(self, p, targets):
         self.goto(p)
 	if self.goal_reached==True:
-	    if self.cha_detected == False:
+	    if not (self.cha_detected or self.qr_detected):
 		self.sway()
-	    if self.cha_detected == True:
+	    if (self.cha_detected or self.qr_detected):
 	        os.system('mplayer %s' % path[num][0])
                 rospy.sleep(2)
 		    
 	if self.goal_reached==False:
 	    return True
 		
-        if num==0:
-	    if(id==1 or cha==1):
+        if self.num==0:
+	    if(self.id==1 or self.cha==1):
 		self.goto(targets[0])
                 rospy.sleep(1)
-	    if(id==2 or cha==2):
-		save[num]=id
+	    if(self.id==2 or self.cha==2):
+		self.save[num]=id
                 self.goto(targets[1])
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[num][1])
 	        self.goal_reached = False
-	if num==1:
-	    if(id==3 or cha==3):
+	if self.num==1:
+	    if(self.id==3 or self.cha==3):
 		self.goto(targets[2])
                 rospy.sleep(1)
-	    if(id==4 or cha==4):
-		save[num]=cha
+	    if(self.id==4 or self.cha==4):
+		self.save[num]=cha
                 self.goto(targets[3])
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[num][1])
 	        self.goal_reached = False
-	if num==2:
-	    if(id==6 or cha==6):
+	if self.num==2:
+	    if(self.id==6 or self.cha==6):
 		self.goto(targets[5])
                 rospy.sleep(1)
-	    if(id==5 or cha==5):
-		save[num]=id
+	    if(self.id==5 or self.cha==5):
+		self.save[num]=id
                 self.goto(targets[4])
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[num][1])
                 self.goal_reached = False	    
-	if num==3:
-	    if(id==7 or cha==7):
+	if self.num==3:
+	    if(self.id==7 or self.cha==7):
 		self.goto(targets[6])
                 rospy.sleep(1)
-	    if(id==8 or cha==8):
-		save[num]=id
+	    if(self.id==8 or self.cha==8):
+		self.save[num]=id
                 self.goto(targets[7])
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[num][1])
@@ -233,23 +229,15 @@ if __name__ == "__main__":
     if input == '1':
 	for goal in goals:
             navi.process_goal(goal,targets)
-	    num=num+1
+	    navi.num=navi.num+1
 
     while not rospy.is_shutdown():
         rospy.sleep(1)
         
 '''
-from ar_track_alvar_msgs.msg import AlvarMarkers
-from ar_track_alvar_msgs.msg import AlvarMarker
- self.ar_sub = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.ar_cb)
-    def ar_cb(self, data):
-	global id
-        self.qr_detected = False
-        for ar_marker in data.markers:
-            if ar_marker.id != 0 and ar_marker.id != 255:
-        	self.qr_detected = True
-                id=ar_marker.id
-                print(id)
+
+ 
+    
 	navi.goto([0.4,-3.20,0])
         navi.goto([0.2,-3.2,-180.0])
         rospy.sleep(2)
