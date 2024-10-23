@@ -29,6 +29,7 @@ music8_path = "/home/abot/mksw/src/arrive8.wav"
 path = [[music1_path,music2_path],[music3_path,music4_path],[music5_path,music6_path],[music7_path,music8_path]]
 global object_id
 object_id=0
+global id
 global cha
 cha=0
 global num
@@ -40,7 +41,6 @@ class navigation_demo:
     def __init__(self):
         self.set_pose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=5)
         self.arrive_pub = rospy.Publisher('/voiceWords', String, queue_size=10)
-
 	self.objects_sub=rospy.Subscriber('/objects', Float32MultiArray,self.objects_cb)
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self.move_base.wait_for_server(rospy.Duration(60))
