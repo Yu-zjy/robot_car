@@ -104,8 +104,15 @@ class navigation_demo:
 	    	    print('a_8')
 		    cha=8
     
-
     def sway(self):
+	while not rospy.is_shutdown() and not (self.cha_detected or self.qr_detected):
+		self.twist.angular.z=0.5
+		self.cmd_vel_pub.publish(self.twist)
+		rospy.sleep(1)
+	self.twist.angular.z=0.0
+	self.cmd_vel_pub.publish(self.twist)
+	
+    def revive(self):
         if self.goal_reached:
             self.twist.linear.x= 1.2
             self.twist.linear.y= 0.9
