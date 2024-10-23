@@ -14,8 +14,6 @@ from std_msgs.msg import Float32MultiArray
 from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QTransform
 import os
-from ar_track_alvar_msgs.msg import AlvarMarkers
-from ar_track_alvar_msgs.msg import AlvarMarker
 
 music1_path = "/home/abot/mksw/src/detect2.wav"
 music2_path = "/home/abot/mksw/src/arrive2.wav"
@@ -199,12 +197,12 @@ class navigation_demo:
 	        os.system('mplayer %s' % path[num][1])
 	        self.goal_reached = False
 	if num==2:
-	    if(id==5 or cha==5):
-		self.goto(targets[4])
-                rospy.sleep(1)
 	    if(id==6 or cha==6):
+		self.goto(targets[5])
+                rospy.sleep(1)
+	    if(id==5 or cha==5):
 		save[num]=id
-                self.goto(targets[5])
+                self.goto(targets[4])
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[num][1])
                 self.goal_reached = False	    
@@ -241,6 +239,8 @@ if __name__ == "__main__":
         rospy.sleep(1)
         
 '''
+from ar_track_alvar_msgs.msg import AlvarMarkers
+from ar_track_alvar_msgs.msg import AlvarMarker
  self.ar_sub = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.ar_cb)
     def ar_cb(self, data):
 	global id
