@@ -105,7 +105,7 @@ class navigation_demo:
 		    id=8
     
     def sway(self):
-	while not rospy.is_shutdown() and not (self.cha_detected or self.qr_detected):
+	while not rospy.is_shutdown() and not self.cha_detected:
 		self.twist.angular.z=0.5
 		self.cmd_vel_pub.publish(self.twist)
 		rospy.sleep(1)
@@ -169,53 +169,55 @@ class navigation_demo:
     def process_goal(self, p, targets):
         self.goto(p)
 	if self.goal_reached==True:
-	    os.system('mplayer %s' % path[num][0])
-            rospy.sleep(2)
+	    if self.cha_detected == False:
+		self.sway()
+	    if self.cha_detected == True:
+	        os.system('mplayer %s' % path[num][0])
+                rospy.sleep(2)
+		    
 	if self.goal_reached==False:
 	    return True
-	if self.cha_detected == False and self.qr_detected == False:
-	    return True
-
+		
         if num==0:
 	    if(id==1 or cha==1):
 		self.goto(targets[0])
                 rospy.sleep(1)
 	    if(id==2 or cha==2):
+		save[num]=id
                 self.goto(targets[1])
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[num][1])
-	        save[num]=id
 	        self.goal_reached = False
 	if num==1:
 	    if(id==3 or cha==3):
 		self.goto(targets[2])
                 rospy.sleep(1)
 	    if(id==4 or cha==4):
+		save[num]=cha
                 self.goto(targets[3])
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[num][1])
-	        save[num]=cha
 	        self.goal_reached = False
 	if num==2:
 	    if(id==5 or cha==5):
 		self.goto(targets[4])
                 rospy.sleep(1)
 	    if(id==6 or cha==6):
+		save[num]=id
                 self.goto(targets[5])
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[num][1])
-	        save[num]=id
                 self.goal_reached = False	    
 	if num==3:
 	    if(id==7 or cha==7):
 		self.goto(targets[6])
                 rospy.sleep(1)
 	    if(id==8 or cha==8):
-            self.goto(targets[7])
-            rospy.sleep(1)
-	    os.system('mplayer %s' % path[num][1])
-	    save[num]=id
-            self.goal_reached = False
+		save[num]=id
+                self.goto(targets[7])
+                rospy.sleep(1)
+	        os.system('mplayer %s' % path[num][1])
+                self.goal_reached = False
 
 if __name__ == "__main__":
     rospy.init_node('navigation_demo', anonymous=True)
