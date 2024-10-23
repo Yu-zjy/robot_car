@@ -40,24 +40,15 @@ class navigation_demo:
     def __init__(self):
         self.set_pose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=5)
         self.arrive_pub = rospy.Publisher('/voiceWords', String, queue_size=10)
-        self.ar_sub = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.ar_cb)
+
 	self.objects_sub=rospy.Subscriber('/objects', Float32MultiArray,self.objects_cb)
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self.move_base.wait_for_server(rospy.Duration(60))
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.twist = Twist()
-        self.qr_detected = False
 	self.cha_detected = False
         self.goal_reached = False  
-
-    def ar_cb(self, data):
-	global id
-        self.qr_detected = False
-        for ar_marker in data.markers:
-            if ar_marker.id != 0 and ar_marker.id != 255:
-        	self.qr_detected = True
-                id=ar_marker.id
-                print(id)
+       
 
     def objects_cb(self, msg):
     	data = msg.data
@@ -103,6 +94,15 @@ class navigation_demo:
     		if ((92<=object_id) & (object_id<=96)):
 	    	    print('a_8')
 		    cha=8
+		if ((55<=object_id) & (object_id<=60)):
+	    	    print('2')
+		    id=2
+		if ((55<=object_id) & (object_id<=60)):
+	    	    print('5')
+		    id=5
+		if ((55<=object_id) & (object_id<=60)):
+	    	    print('8')
+		    id=8
     
     def sway(self):
 	while not rospy.is_shutdown() and not (self.cha_detected or self.qr_detected):
@@ -140,7 +140,7 @@ class navigation_demo:
         self.move_base.send_goal(goal, self._done_cb, self._active_cb, self._feedback_cb)
 	    
     	while not self.move_base.wait_for_result(rospy.Duration(0.1)):
-        	if (self.cha_detected or self.qr_detected):
+        	if self.cha_detected:
 		    if (id in save[:num]) or (cha in save[:num]):
 			continue
             	    self.move_base.cancel_goal()
@@ -239,6 +239,15 @@ if __name__ == "__main__":
         rospy.sleep(1)
         
 '''
+ self.ar_sub = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.ar_cb)
+    def ar_cb(self, data):
+	global id
+        self.qr_detected = False
+        for ar_marker in data.markers:
+            if ar_marker.id != 0 and ar_marker.id != 255:
+        	self.qr_detected = True
+                id=ar_marker.id
+                print(id)
 	navi.goto([0.4,-3.20,0])
         navi.goto([0.2,-3.2,-180.0])
         rospy.sleep(2)
