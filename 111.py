@@ -176,28 +176,41 @@ class navigation_demo:
 	if self.cha_detected == False and self.qr_detected == False:
 	    return True
 
-        if id==2 and num==0:
-            self.goto(targets[1])
-            rospy.sleep(1)
-	    os.system('mplayer %s' % path[num][1])
-	    save[num]=id
-	    self.goal_reached = False
-            return True
-        if cha==4 and num==1:
-            self.goto(targets[3])
-            rospy.sleep(1)
-	    os.system('mplayer %s' % path[num][1])
-	    save[num]=cha
-	    self.goal_reached = False
-            return True
-        if id==5 and num==2:
-            self.goto(targets[5])
-            rospy.sleep(1)
-	    os.system('mplayer %s' % path[num][1])
-	    save[num]=id
-            self.goal_reached = False
-            return True
-        if id==8 and num==3:
+        if num==0:
+	    if(id==1 or cha==1):
+		self.goto(targets[0])
+                rospy.sleep(1)
+	    if(id==2 or cha==2):
+                self.goto(targets[1])
+                rospy.sleep(1)
+	        os.system('mplayer %s' % path[num][1])
+	        save[num]=id
+	        self.goal_reached = False
+	if num==1:
+	    if(id==3 or cha==3):
+		self.goto(targets[2])
+                rospy.sleep(1)
+	    if(id==4 or cha==4):
+                self.goto(targets[3])
+                rospy.sleep(1)
+	        os.system('mplayer %s' % path[num][1])
+	        save[num]=cha
+	        self.goal_reached = False
+	if num==2:
+	    if(id==5 or cha==5):
+		self.goto(targets[4])
+                rospy.sleep(1)
+	    if(id==6 or cha==6):
+                self.goto(targets[5])
+                rospy.sleep(1)
+	        os.system('mplayer %s' % path[num][1])
+	        save[num]=id
+                self.goal_reached = False	    
+	if num==3:
+	    if(id==7 or cha==7):
+		self.goto(targets[6])
+                rospy.sleep(1)
+	    if(id==8 or cha==8):
             self.goto(targets[7])
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
