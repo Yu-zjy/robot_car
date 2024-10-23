@@ -181,25 +181,28 @@ class navigation_demo:
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
 	    save[num]=id
+	    self.goal_reached = False
             return True
         if cha==4 and num==1:
             self.goto(targets[3])
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
 	    save[num]=cha
+	    self.goal_reached = False
             return True
         if id==5 and num==2:
             self.goto(targets[5])
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
 	    save[num]=id
+            self.goal_reached = False
             return True
         if id==8 and num==3:
             self.goto(targets[7])
             rospy.sleep(1)
 	    os.system('mplayer %s' % path[num][1])
 	    save[num]=id
-        self.goal_reached = False
+            self.goal_reached = False
 
 if __name__ == "__main__":
     rospy.init_node('navigation_demo', anonymous=True)
