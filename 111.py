@@ -29,14 +29,12 @@ music8_path = "/home/abot/mksw/src/arrive8.wav"
 path = [[music1_path,music2_path],[music3_path,music4_path],[music5_path,music6_path],[music7_path,music8_path]]
 global object_id
 object_id=0
-global id
-id=25
 global cha
-cha=25
+cha=0
 global num
 num =0
 global save
-save=[0]
+save=[25]*15
 
 class navigation_demo:
     def __init__(self):
@@ -53,6 +51,7 @@ class navigation_demo:
         self.goal_reached = False  
 
     def ar_cb(self, data):
+	global id
         self.qr_detected = False
         for ar_marker in data.markers:
             if ar_marker.id != 0 and ar_marker.id != 255:
