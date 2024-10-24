@@ -102,16 +102,15 @@ class navigation_demo:
 	while not rospy.is_shutdown() and not (self.cha_detected or  self.qr_detected):
 		self.twist.angular.z=0.5
 		self.cmd_vel_pub.publish(self.twist)
-		rospy.sleep(1)
+		rospy.sleep(0.5)
 	self.twist.angular.z=0.0
 	self.cmd_vel_pub.publish(self.twist)
 	
     def revive(self):
-        if self.goal_reached:
-            self.twist.linear.x= 1.2
-            self.twist.linear.y= 0.9
-            self.cmd_vel_pub.publish(self.twist)
-            rospy.sleep(3)
+        self.twist.linear.x= 1.2
+        self.twist.linear.y= 0.9
+        self.cmd_vel_pub.publish(self.twist)
+        rospy.sleep(3)
         
         self.twist.linear.x= 0.0
         self.twist.linear.y= 0.0
@@ -135,7 +134,7 @@ class navigation_demo:
 	    
     	while not self.move_base.wait_for_result(rospy.Duration(0.1)):
         	if (self.cha_detected or self.cha_detected):
-		    if (self.id in self.save[:num]) or (self.cha in self.save[:num]):
+		    if (self.id in self.save[:self.num]) or (self.cha in self.save[:self.num]):
 			continue
             	    self.move_base.cancel_goal()
             	    rospy.loginfo("Navigation canceled due to detection.")
@@ -191,7 +190,7 @@ class navigation_demo:
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[self.num][1])
 	        self.goal_reached = False
-	if self.num==1:
+	if self.num==2:
 	    if(self.id==3 or self.cha==3):
 		if self.cha_detected:
 		    self.save[self.num]=self.cha
@@ -210,7 +209,7 @@ class navigation_demo:
                 rospy.sleep(1)
 	        os.system('mplayer %s' % path[self.num][1])
 	        self.goal_reached = False
-	if self.num==2:
+	if self.num==1:
 	    if(self.id==6 or self.cha==6):
 		if self.cha_detected:
 		    self.save[self.num]=self.cha
@@ -266,7 +265,9 @@ if __name__ == "__main__":
 	for goal in goals:
             navi.process_goal(goal,targets)
 	    navi.num=navi.num+1
-
+	navi.goto([0.2,-0.32,180.0])
+	navi.revive()
+	navi.revive()
     while not rospy.is_shutdown():
         rospy.sleep(1)
         
