@@ -134,7 +134,7 @@ class navigation_demo:
 	    
     	while not self.move_base.wait_for_result(rospy.Duration(0.1)):
         	if (self.cha_detected or self.cha_detected):
-		    if (self.id in self.save[:self.num]) or (self.cha in self.save[:self.num]):
+		    if (self.id in self.save[:self.num+1]) or (self.cha in self.save[:self.num+1]):
 			continue
             	    self.move_base.cancel_goal()
             	    rospy.loginfo("Navigation canceled due to detection.")
