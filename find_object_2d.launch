@@ -1,12 +1,13 @@
 <launch>
     <arg name="gui" default="true"/>
     <arg name="image_topic" default="/usb_cam/image_raw"/>
+    <arg name="processed_image_topic" default="/processed_image"/>
     <arg name="objects_path" default="/home/abot/abot_ws/src/abot_find/object/object_db.yaml"/>
     <arg name="settings_path" default="~/.ros/find_object_2d.ini"/>
 
 	<!-- Nodes -->
 	<node name="find_object_2d" pkg="find_object_2d" type="find_object_2d">
-		<remap from="image" to="$(arg image_topic)"/>
+		<remap from="image" to="$(arg processed_image_topic)"/>
 		<param name="gui" value="$(arg gui)" type="bool"/>
 		<param name="objects_path" value="$(arg objects_path)" type="str"/>
 		<param name="settings_path" value="$(arg settings_path)" type="str"/>
