@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+import subprocess
 from geometry_msgs.msg import Twist
 import actionlib
 from actionlib_msgs.msg import *
@@ -75,28 +76,28 @@ class navigation_demo:
             	qt_bottom_left = qt_homography.map(QPointF(0, object_height))
             	qt_bottom_right = qt_homography.map(QPointF(object_width, object_height))
 		self.cha_detected = True
-    		if ((55<=object_id) & (object_id<=60)):
+    		if ((144<=object_id) & (object_id<=148)):
 	    	    print('a_1')
 		    self.cha=1
-    		if ((61<=object_id) & (object_id<=65)):
+    		if ((149<=object_id) & (object_id<=154)):
 	            print('a_2')
 		    self.cha=2
-    		if ((66<=object_id) & (object_id<=70)):
+    		if ((155<=object_id) & (object_id<=160)):
 	    	    print('a_3')
 		    self.cha=3
-    		if ((71<=object_id) & (object_id<=75)):
+    		if ((161<=object_id) & (object_id<=166)):
 	    	    print('a_4')
 		    self.cha=4
-    		if ((76<=object_id) & (object_id<=81)):
+    		if ((167<=object_id) & (object_id<=172)):
 	    	    print('a_5')
 		    self.cha=5
-    		if ((82<=object_id) & (object_id<=86)):
+    		if ((173<=object_id) & (object_id<=178)):
 	    	    print('a_6')
 		    self.cha=6
-    		if ((87<=object_id) & (object_id<=91)):
+    		if ((179<=object_id) & (object_id<=184)):
 	    	    print('a_7')
 		    self.cha=7
-    		if ((92<=object_id) & (object_id<=96)):
+    		if ((185<=object_id) & (object_id<=190)):
 	    	    print('a_8')
 		    self.cha=8
     
@@ -163,7 +164,7 @@ class navigation_demo:
 
     def process_goal(self, p, targets):
         self.goto(p)
-	rospy.sleep(4)
+	rospy.sleep(2)
 		    
 	if self.goal_reached==False:
 	    return True
@@ -247,7 +248,7 @@ if __name__ == "__main__":
     goals = [[float(x), float(y), float(yaw)] for (x, y, yaw) in zip(goalListX.split(","), goalListY.split(","), goalListYaw.split(","))]
     print(goals)
     print('Please 1 to continue: ')
-    targets=[[0.20,-1.02,-180],[1.00,-0.17,-180],[2.20,-0.17,0],[3.00,-1.02,0],[3.00,-2.22,0],[2.20,-3.07,0],[1.00,-3.07,-180],[0.20,-2.22,-180]]
+    targets=[[0.24,-1.14,-180],[1.08,-0.20,-180],[2.20,-0.17,0],[2.98,-1.11,0],[2.92,-2.12,0],[2.20,-3.07,0],[1.00,-3.07,-180],[0.35,-2.09,-180]]
     navi = navigation_demo()
     input = raw_input()
     if input == '1':
@@ -255,8 +256,7 @@ if __name__ == "__main__":
             navi.process_goal(goal,targets)
 	    navi.num=navi.num+1
 	navi.goto([0.3,-0.32,180.0])
-	navi.revive()
-	navi.revive()
+	subprocess.Popen(['rosbag','play','goal_end.bag'])
     while not rospy.is_shutdown():
         rospy.sleep(1)
         
